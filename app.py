@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 import joblib
 import pandas as pd
-from src.prediction import HousePricePredictor
 import os
 import logging
+from src.prediction import HousePricePredictor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -15,12 +15,13 @@ app = Flask(__name__)
 app.config['DEBUG'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 
-# Initialize predictor
+# Global variables for predictor
 predictor = None
+model_loaded = False
 
 def load_model():
     """Load the trained model and preprocessor"""
-    global predictor
+    global predictor, model_loaded
     predictor = HousePricePredictor()
     try:
         model_path = 'models/best_model.pkl'
@@ -30,16 +31,20 @@ def load_model():
         if os.path.exists(model_path):
             predictor.load_model(model_path, preprocessor_path)
             logger.info("✅ Model loaded successfully")
+            model_loaded = True
             return True
         else:
-            logger.error("❌ Model files not found")
+            logger.warning("⚠️ Model files not found - app will run without predictions")
+            model_loaded = False
             return False
     except Exception as e:
         logger.error(f"❌ Error loading models: {e}")
+        model_loaded = False
         return False
 
-# Load model on startup
-model_loaded = load_model()
+# Load model on startup (replaces @app.before_first_request)
+with app.app_context():
+    load_model()
 
 @app.route('/')
 def home():
@@ -49,8 +54,8 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     """Handle single house price prediction"""
-    if predictor is None or not predictor.is_loaded:
-        error_msg = "Model not loaded. Please contact administrator."
+    if not model_loaded or predictor is None or not predictor.is_loaded:
+        error_msg = "Prediction service temporarily unavailable. Please try again later."
         logger.error(error_msg)
         return render_template('error.html', error=error_msg)
     
@@ -102,17 +107,17 @@ def predict():
 @app.route('/batch_predict')
 def batch_predict_page():
     """Batch prediction page"""
-    if predictor is None or not predictor.is_loaded:
+    if not model_loaded or predictor is None or not predictor.is_loaded:
         return render_template('error.html', 
-                             error="Model not loaded. Please contact administrator.")
+                             error="Prediction service temporarily unavailable.")
     return render_template('batch_predict.html')
 
 @app.route('/batch_predict', methods=['POST'])
 def batch_predict():
     """Handle batch predictions from CSV file"""
-    if predictor is None or not predictor.is_loaded:
+    if not model_loaded or predictor is None or not predictor.is_loaded:
         return render_template('error.html', 
-                             error="Model not loaded. Please contact administrator.")
+                             error="Prediction service temporarily unavailable.")
     
     try:
         if 'file' not in request.files:
@@ -157,11 +162,11 @@ def batch_predict():
 @app.route('/api/predict', methods=['POST'])
 def api_predict():
     """API endpoint for single predictions"""
-    if predictor is None or not predictor.is_loaded:
+    if not model_loaded or predictor is None or not predictor.is_loaded:
         return jsonify({
-            'error': 'Model not loaded', 
+            'error': 'Prediction service unavailable', 
             'status': 'error'
-        }), 500
+        }), 503
     
     try:
         data = request.json
@@ -201,11 +206,11 @@ def api_predict():
 @app.route('/api/batch_predict', methods=['POST'])
 def api_batch_predict():
     """API endpoint for batch predictions"""
-    if predictor is None or not predictor.is_loaded:
+    if not model_loaded or predictor is None or not predictor.is_loaded:
         return jsonify({
-            'error': 'Model not loaded', 
+            'error': 'Prediction service unavailable', 
             'status': 'error'
-        }), 500
+        }), 503
     
     try:
         data = request.json
@@ -245,18 +250,19 @@ def health():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
-        'model_loaded': predictor is not None and predictor.is_loaded,
-        'version': '1.0.0'
+        'model_loaded': model_loaded,
+        'version': '1.0.0',
+        'service': 'house-price-predictor'
     })
 
 @app.route('/model_info')
 def model_info():
     """Get model information"""
-    if predictor is None or not predictor.is_loaded:
+    if not model_loaded or predictor is None or not predictor.is_loaded:
         return jsonify({
             'error': 'Model not loaded',
             'status': 'error'
-        }), 500
+        }), 503
     
     try:
         # Get model type
@@ -270,7 +276,8 @@ def model_info():
         return jsonify({
             'model_type': model_type,
             'model_loaded': True,
-            'feature_importance': feature_importance,
+            'has_feature_importance': feature_importance is not None,
+            'feature_count': len(feature_importance) if feature_importance else 0,
             'status': 'success'
         })
         
@@ -294,20 +301,22 @@ def internal_error(error):
     return render_template('error.html', 
                           error="Internal server error. Please try again later."), 500
 
-@app.before_first_request
-def startup():
-    """Run startup tasks"""
-    logger.info("🚀 House Price Predictor App Starting...")
-    logger.info(f"Model loaded: {model_loaded}")
+@app.errorhandler(503)
+def service_unavailable_error(error):
+    """Handle 503 errors"""
+    return render_template('error.html', 
+                          error="Service temporarily unavailable. Please try again later."), 503
 
 if __name__ == '__main__':
     # Get port from environment variable (Render sets this automatically)
     port = int(os.environ.get('PORT', 10000))
     
-    # For local development, you can set debug=True
+    # For development, you can set debug=True
     debug_mode = os.environ.get('FLASK_ENV') == 'development'
     
-    logger.info(f"🌐 Starting Flask app on port {port}")
+    logger.info("🏠 House Price Predictor Starting...")
+    logger.info(f"🌐 Port: {port}")
+    logger.info(f"🤖 Model loaded: {model_loaded}")
     logger.info(f"🔧 Debug mode: {debug_mode}")
     
     app.run(
