@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Header Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-3 text-white fw-bold mb-3">
+                <i class="fas fa-home me-3"></i>AI House Price Predictor
+            </h1>
+            <p class="lead text-white-50 fs-4">Get accurate price predictions using advanced machine learning</p>
+            
+            {% if not model_loaded %}
+            <div class="alert alert-warning card-3d">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Warning:</strong> Model not loaded. Please run <code>python main.py</code> first.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="card card-3d p-5">
+            <div class="text-center mb-4">
+                <h2 class="text-primary fw-bold">
+                    <i class="fas fa-edit me-2"></i>Property Details
+                </h2>
+                <p class="text-muted">Fill in the details below to get your prediction</p>
+            </div>
+
+            <form method="POST" action="/predict" id="predictionForm">
+                <div class="row g-4">
+                    <!-- Area Input -->
+                    <div class="col-md-6">
+                        <label for="area" class="form-label fw-semibold">
+                            <i class="fas fa-ruler-combined text-primary me-2"></i>Area (sq ft)
+                        </label>
+                        <input type="number" class="form-control" id="area" name="area" 
+                               min="500" max="20000" value="2000" required>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>Enter area between 500-20,000 sq ft
+                        </div>
+                    </div>
+
+                    <!-- Bedrooms -->
+                    <div class="col-md-6">
+                        <label for="bedrooms" class="form-label fw-semibold">
+                            <i class="fas fa-bed text-primary me-2"></i>Bedrooms
+                        </label>
+                        <select class="form-select" id="bedrooms" name="bedrooms" required>
+                            <option value="1">1 Bedroom</option>
+                            <option value="2">2 Bedrooms</option>
+                            <option value="3" selected>3 Bedrooms</option>
+                            <option value="4">4 Bedrooms</option>
+                            <option value="5">5 Bedrooms</option>
+                            <option value="6">6 Bedrooms</option>
+                        </select>
+                    </div>
+
+                    <!-- Bathrooms -->
+                    <div class="col-md-6">
+                        <label for="bathrooms" class="form-label fw-semibold">
+                            <i class="fas fa-bath text-primary me-2"></i>Bathrooms
+                        </label>
+                        <select class="form-select" id="bathrooms" name="bathrooms" required>
+                            <option value="1">1 Bathroom</option>
+                            <option value="2" selected>2 Bathrooms</option>
+                            <option value="3">3 Bathrooms</option>
+                            <option value="4">4 Bathrooms</option>
+                        </select>
+                    </div>
+
+                    <!-- Stories -->
+                    <div class="col-md-6">
+                        <label for="stories" class="form-label fw-semibold">
+                            <i class="fas fa-building text-primary me-2"></i>Stories
+                        </label>
+                        <select class="form-select" id="stories" name="stories" required>
+                            <option value="1">1 Story</option>
+                            <option value="2" selected>2 Stories</option>
+                            <option value="3">3 Stories</option>
+                            <option value="4">4 Stories</option>
+                        </select>
+                    </div>
+
+                    <!-- Parking -->
+                    <div class="col-md-6">
+                        <label for="parking" class="form-label fw-semibold">
+                            <i class="fas fa-car text-primary me-2"></i>Parking Spaces
+                        </label>
+                        <select class="form-select" id="parking" name="parking" required>
+                            <option value="0">No Parking</option>
+                            <option value="1">1 Space</option>
+                            <option value="2" selected>2 Spaces</option>
+                            <option value="3">3 Spaces</option>
+                        </select>
+                    </div>
+
+                    <!-- Features Section -->
+                    <div class="col-12 mt-4">
+                        <h4 class="text-primary fw-semibold mb-3">
+                            <i class="fas fa-star me-2"></i>Property Features
+                        </h4>
+                    </div>
+
+                    <!-- Main Road -->
+                    <div class="col-md-6">
+                        <label for="mainroad" class="form-label fw-semibold">
+                            <i class="fas fa-road text-primary me-2"></i>Main Road Access
+                        </label>
+                        <select class="form-select" id="mainroad" name="mainroad" required>
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <!-- Guest Room -->
+                    <div class="col-md-6">
+                        <label for="guestroom" class="form-label fw-semibold">
+                            <i class="fas fa-users text-primary me-2"></i>Guest Room
+                        </label>
+                        <select class="form-select" id="guestroom" name="guestroom" required>
+                            <option value="yes">Yes</option>
+                            <option value="no" selected>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Basement -->
+                    <div class="col-md-6">
+                        <label for="basement" class="form-label fw-semibold">
+                            <i class="fas fa-warehouse text-primary me-2"></i>Basement
+                        </label>
+                        <select class="form-select" id="basement" name="basement" required>
+                            <option value="yes">Yes</option>
+                            <option value="no" selected>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Air Conditioning -->
+                    <div class="col-md-6">
+                        <label for="airconditioning" class="form-label fw-semibold">
+                            <i class="fas fa-snowflake text-primary me-2"></i>Air Conditioning
+                        </label>
+                        <select class="form-select" id="airconditioning" name="airconditioning" required>
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <!-- Hot Water Heating -->
+                    <div class="col-md-6">
+                        <label for="hotwaterheating" class="form-label fw-semibold">
+                            <i class="fas fa-fire text-primary me-2"></i>Hot Water Heating
+                        </label>
+                        <select class="form-select" id="hotwaterheating" name="hotwaterheating" required>
+                            <option value="yes">Yes</option>
+                            <option value="no" selected>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Preferred Area -->
+                    <div class="col-md-6">
+                        <label for="prefarea" class="form-label fw-semibold">
+                            <i class="fas fa-map-marker-alt text-primary me-2"></i>Preferred Area
+                        </label>
+                        <select class="form-select" id="prefarea" name="prefarea" required>
+                            <option value="yes">Yes</option>
+                            <option value="no" selected>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Furnishing Status -->
+                    <div class="col-md-6">
+                        <label for="furnishingstatus" class="form-label fw-semibold">
+                            <i class="fas fa-couch text-primary me-2"></i>Furnishing Status
+                        </label>
+                        <select class="form-select" id="furnishingstatus" name="furnishingstatus" required>
+                            <option value="furnished">Furnished</option>
+                            <option value="semi-furnished" selected>Semi-Furnished</option>
+                            <option value="unfurnished">Unfurnished</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center mt-5">
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+                    <button type="submit" class="btn btn-3d btn-lg px-5" id="predictBtn" 
+                            {% if not model_loaded %}disabled{% endif %}>
+                        <i class="fas fa-magic me-2"></i>Predict House Price
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-3">
+                <div class="card card-3d text-center p-4">
+                    <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                    <h5 class="fw-bold">AI Powered</h5>
+                    <p class="text-muted">Advanced machine learning algorithms for accurate predictions</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-3d text-center p-4">
+                    <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                    <h5 class="fw-bold">Real Market Data</h5>
+                    <p class="text-muted">Trained on thousands of real estate transactions</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-3d text-center p-4">
+                    <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                    <h5 class="fw-bold">Instant Results</h5>
+                    <p class="text-muted">Get your house price prediction in seconds</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
