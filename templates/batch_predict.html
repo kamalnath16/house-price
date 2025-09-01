@@ -1,45 +1,33 @@
 {% extends "base.html" %}
 
+{% block title %}Batch Prediction - House Price Predictor{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="text-center mb-5">
-            <h1 class="display-4 text-white fw-bold mb-3">
-                <i class="fas fa-file-csv me-3"></i>Batch Price Prediction
-            </h1>
-            <p class="lead text-white-50 fs-4">Upload a CSV file to predict multiple house prices at once</p>
-        </div>
-
-        <div class="card card-3d p-5">
-            <div class="text-center mb-4">
-                <h3 class="text-primary fw-bold">
-                    <i class="fas fa-upload me-2"></i>Upload CSV File
-                </h3>
-                <p class="text-muted">Your CSV should contain columns: area, bedrooms, bathrooms, stories, etc.</p>
-            </div>
-
-            <form method="POST" action="/batch_predict" enctype="multipart/form-data">
-                <div class="mb-4">
-                    <label for="file" class="form-label fw-semibold">
-                        <i class="fas fa-file-csv text-primary me-2"></i>Select CSV File
-                    </label>
-                    <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
-                    <div class="form-text">
-                        <i class="fas fa-info-circle me-1"></i>Only CSV files are supported
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Batch Price Prediction</h2>
+                
+                <div class="alert alert-info" role="alert">
+                    <h6 class="alert-heading">Upload a CSV file with multiple houses</h6>
+                    <small>Your CSV should include columns: area, bedrooms, bathrooms, stories, parking, mainroad, guestroom, basement, hotwaterheating, airconditioning, prefarea, furnishingstatus</small>
+                </div>
+                
+                <form method="POST" action="/batch_predict" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label for="file" class="form-label">Choose CSV File</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
                     </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">Upload & Predict</button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-3">
+                    <a href="/" class="btn btn-outline-secondary">Back to Single Prediction</a>
                 </div>
-
-                <div class="text-center">
-                    <button type="submit" class="btn btn-3d btn-lg px-5">
-                        <i class="fas fa-chart-bar me-2"></i>Predict Prices
-                    </button>
-                </div>
-            </form>
-
-            <div class="mt-4 text-center">
-                <a href="/" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Single Prediction
-                </a>
             </div>
         </div>
     </div>
