@@ -1,131 +1,37 @@
 {% extends "base.html" %}
 
+{% block title %}Prediction Result - House Price Predictor{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-10">
-        <!-- Success Header -->
-        <div class="text-center mb-5">
-            <div class="card card-3d p-4 mb-4">
-                <i class="fas fa-check-circle text-success" style="font-size: 4rem; margin-bottom: 20px;"></i>
-                <h1 class="display-4 text-success fw-bold mb-3">Prediction Complete!</h1>
-                <p class="lead text-muted">Your house price has been calculated using our AI model</p>
-            </div>
-        </div>
-
-        <!-- Price Display -->
-        <div class="card card-3d text-center p-5 mb-4">
-            <h2 class="text-primary fw-bold mb-4">
-                <i class="fas fa-dollar-sign me-2"></i>Predicted House Price
-            </h2>
-            <div class="prediction-result">
-                ${{ "{:,.0f}".format(prediction) }}
-            </div>
-            <p class="text-muted fs-5 mt-3">
-                <i class="fas fa-info-circle me-2"></i>Based on current market analysis
-            </p>
-            
-            <!-- Additional Info -->
-            <div class="row mt-4">
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <i class="fas fa-trending-up text-success fa-2x mb-2"></i>
-                        <h6 class="text-white">Market Ready</h6>
-                    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h2 class="card-title text-success mb-4">Prediction Complete!</h2>
+                
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Predicted House Price</h4>
+                    <hr>
+                    <h1 class="display-4 mb-0">${{ "{:,.2f}".format(prediction) }}</h1>
                 </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <i class="fas fa-shield-alt text-info fa-2x mb-2"></i>
-                        <h6 class="text-white">AI Verified</h6>
-                    </div>
+                
+                <div class="mt-4">
+                    <h5>Property Details:</h5>
+                    <ul class="list-unstyled text-start">
+                        <li><strong>Area:</strong> {{ features.area }} sq ft</li>
+                        <li><strong>Bedrooms:</strong> {{ features.bedrooms }}</li>
+                        <li><strong>Bathrooms:</strong> {{ features.bathrooms }}</li>
+                        <li><strong>Stories:</strong> {{ features.stories }}</li>
+                        <li><strong>Parking:</strong> {{ features.parking }} spaces</li>
+                    </ul>
                 </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <i class="fas fa-certificate text-warning fa-2x mb-2"></i>
-                        <h6 class="text-white">Certified Value</h6>
-                    </div>
+                
+                <div class="mt-4">
+                    <a href="/" class="btn btn-primary me-2">New Prediction</a>
+                    <a href="/batch_predict" class="btn btn-outline-primary">Batch Prediction</a>
                 </div>
             </div>
-        </div>
-
-        <!-- House Features -->
-        <div class="card card-3d p-4 mb-4">
-            <h3 class="text-primary fw-bold text-center mb-4">
-                <i class="fas fa-list-check me-2"></i>Property Analysis
-            </h3>
-            
-            <div class="row g-3">
-                {% for key, value in features.items() %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="feature-card d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <strong class="text-white">{{ key.replace('_', ' ').title() }}:</strong>
-                            <div class="text-white-50">{{ value }}</div>
-                        </div>
-                        <div class="ms-2">
-                            {% if key == 'area' %}
-                                <i class="fas fa-ruler-combined text-primary"></i>
-                            {% elif key == 'bedrooms' %}
-                                <i class="fas fa-bed text-primary"></i>
-                            {% elif key == 'bathrooms' %}
-                                <i class="fas fa-bath text-primary"></i>
-                            {% elif key == 'parking' %}
-                                <i class="fas fa-car text-primary"></i>
-                            {% else %}
-                                <i class="fas fa-check-circle text-success"></i>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="text-center">
-            <a href="/" class="btn btn-3d me-3">
-                <i class="fas fa-plus me-2"></i>New Prediction
-            </a>
-            <a href="/batch_predict" class="btn btn-3d" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                <i class="fas fa-file-csv me-2"></i>Batch Predictions
-            </a>
         </div>
     </div>
 </div>
-
-<script>
-// Add celebration animation
-document.addEventListener('DOMContentLoaded', function() {
-    // Create floating particles effect
-    function createParticle() {
-        const particle = document.createElement('div');
-        particle.style.position = 'fixed';
-        particle.style.left = Math.random() * 100 + 'vw';
-        particle.style.top = '100vh';
-        particle.style.width = '10px';
-        particle.style.height = '10px';
-        particle.style.background = `hsl(${Math.random() * 360}, 50%, 50%)`;
-        particle.style.borderRadius = '50%';
-        particle.style.pointerEvents = 'none';
-        particle.style.zIndex = '1000';
-        document.body.appendChild(particle);
-
-        const animation = particle.animate([
-            { transform: 'translateY(0vh) rotate(0deg)', opacity: 1 },
-            { transform: 'translateY(-100vh) rotate(360deg)', opacity: 0 }
-        ], {
-            duration: 3000,
-            easing: 'ease-out'
-        });
-
-        animation.addEventListener('finish', () => {
-            particle.remove();
-        });
-    }
-
-    // Create particles
-    for (let i = 0; i < 20; i++) {
-        setTimeout(() => createParticle(), i * 100);
-    }
-});
-</script>
 {% endblock %}
