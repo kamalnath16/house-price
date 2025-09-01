@@ -1,27 +1,22 @@
 {% extends "base.html" %}
 
+{% block title %}Batch Results - House Price Predictor{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-12">
-        <div class="text-center mb-5">
-            <h1 class="display-4 text-white fw-bold mb-3">
-                <i class="fas fa-check-circle text-success me-3"></i>Batch Prediction Results
-            </h1>
-            <p class="lead text-white-50">Here are the predicted prices for your uploaded properties</p>
-        </div>
-
-        <div class="card card-3d p-4">
-            <div class="table-responsive">
-                {{ results|safe }}
-            </div>
-
-            <div class="text-center mt-4">
-                <a href="/batch_predict" class="btn btn-3d me-3">
-                    <i class="fas fa-upload me-2"></i>Upload Another File
-                </a>
-                <a href="/" class="btn btn-outline-primary">
-                    <i class="fas fa-home me-2"></i>Single Prediction
-                </a>
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Batch Prediction Results</h2>
+                
+                <div class="table-responsive">
+                    {{ results | safe }}
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="/batch_predict" class="btn btn-primary me-2">Upload Another File</a>
+                    <a href="/" class="btn btn-outline-primary">Single Prediction</a>
+                </div>
             </div>
         </div>
     </div>
