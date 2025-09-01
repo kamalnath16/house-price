@@ -1,17 +1,22 @@
 {% extends "base.html" %}
 
+{% block title %}Error - House Price Predictor{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="alert alert-danger text-center">
-            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-            <h2>Oops! Something went wrong</h2>
-            <p class="lead">{{ error }}</p>
-            
-            <div class="mt-4">
-                <a href="/" class="btn btn-primary">
-                    <i class="fas fa-home"></i> Go Back Home
-                </a>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h2 class="card-title text-danger mb-4">Oops! Something went wrong</h2>
+                
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                
+                <div class="mt-4">
+                    <a href="/" class="btn btn-primary me-2">Try Again</a>
+                    <a href="/batch_predict" class="btn btn-outline-primary">Batch Prediction</a>
+                </div>
             </div>
         </div>
     </div>
